@@ -1,5 +1,5 @@
 /**
- * Nature Green Wedding Invitation
+ * Pastel Dream Wedding Invitation
  * Korean Mobile 청첩장 - Script
  */
 
@@ -7,7 +7,7 @@
   'use strict';
 
   /* ═══════════════════════════════════════════
-     Utility Helpers
+     유틸리티 헬퍼
      ═══════════════════════════════════════════ */
 
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
@@ -33,7 +33,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     Image Auto-Detection
+     이미지 자동 감지
      ═══════════════════════════════════════════ */
 
   function loadImagesFromFolder(folder, maxAttempts = 50) {
@@ -105,7 +105,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     Toast
+     토스트
      ═══════════════════════════════════════════ */
 
   let toastTimer = null;
@@ -118,7 +118,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     Clipboard
+     클립보드 복사
      ═══════════════════════════════════════════ */
 
   async function copyToClipboard(text, successMsg) {
@@ -142,7 +142,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     OG Meta Tags
+     OG 메타 태그
      ═══════════════════════════════════════════ */
 
   function setMetaTags() {
@@ -159,7 +159,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     Curtain
+     커튼 (초대장 열기)
      ═══════════════════════════════════════════ */
 
   function initCurtain() {
@@ -167,10 +167,10 @@
     const btn = $('#curtainBtn');
     const namesEl = $('#curtainNames');
 
-    // If useCurtain is false, skip the curtain entirely
+    // useCurtain이 false면 커튼 건너뛰기
     if (CONFIG.useCurtain === false) {
       curtain.style.display = 'none';
-      initFallingLeaves();
+      initFallingHearts();
       return;
     }
 
@@ -181,33 +181,25 @@
       document.body.classList.remove('no-scroll');
       setTimeout(() => {
         curtain.classList.add('is-hidden');
-        initFallingLeaves();
-      }, 1400);
+        initFallingHearts();
+      }, 1200);
     });
 
     document.body.classList.add('no-scroll');
   }
 
   /* ═══════════════════════════════════════════
-     Falling Leaves Animation
+     떨어지는 하트 컨페티
      ═══════════════════════════════════════════ */
 
-  function initFallingLeaves() {
-    const canvas = $('#leafCanvas');
+  function initFallingHearts() {
+    const canvas = $('#heartCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let width, height;
-    const leaves = [];
-    const LEAF_COUNT = 20;
-
-    // Leaf color palette: green and golden tones
-    const leafColors = [
-      { fill: 'rgba(139, 158, 126, 0.6)', stroke: 'rgba(74, 94, 59, 0.3)' },   // sage green
-      { fill: 'rgba(74, 94, 59, 0.5)', stroke: 'rgba(58, 75, 46, 0.3)' },       // forest green
-      { fill: 'rgba(168, 184, 158, 0.5)', stroke: 'rgba(139, 158, 126, 0.3)' },  // light sage
-      { fill: 'rgba(180, 165, 120, 0.5)', stroke: 'rgba(139, 115, 85, 0.3)' },   // golden
-      { fill: 'rgba(160, 175, 130, 0.5)', stroke: 'rgba(100, 120, 70, 0.3)' },   // yellow-green
-    ];
+    const hearts = [];
+    const HEART_COUNT = 20;
+    const COLORS = ['#FFB5C2', '#B5D8FF', '#FFF5BA', '#B5F0D6', '#D5B5FF', '#FFD6DF'];
 
     function resize() {
       width = canvas.width = window.innerWidth;
@@ -217,7 +209,7 @@
     resize();
     window.addEventListener('resize', resize);
 
-    class Leaf {
+    class Heart {
       constructor() {
         this.reset(true);
       }
@@ -225,18 +217,17 @@
       reset(initial = false) {
         this.x = Math.random() * width;
         this.y = initial ? Math.random() * height * -1 : -30;
-        this.size = 10 + Math.random() * 14;
+        this.size = 6 + Math.random() * 10;
         this.speedY = 0.4 + Math.random() * 0.8;
         this.speedX = -0.2 + Math.random() * 0.4;
         this.rotation = Math.random() * Math.PI * 2;
-        this.rotSpeed = (Math.random() - 0.5) * 0.025;
-        this.oscillateAmp = 25 + Math.random() * 35;
+        this.rotSpeed = (Math.random() - 0.5) * 0.03;
+        this.oscillateAmp = 15 + Math.random() * 25;
         this.oscillateSpeed = 0.008 + Math.random() * 0.015;
         this.oscillateOffset = Math.random() * Math.PI * 2;
         this.opacity = 0.15 + Math.random() * 0.35;
+        this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
         this.t = 0;
-        this.colorSet = leafColors[Math.floor(Math.random() * leafColors.length)];
-        this.leafType = Math.floor(Math.random() * 3); // 3 leaf shape variants
       }
 
       update() {
@@ -252,71 +243,29 @@
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
         ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.color;
 
+        // 하트 모양
         const s = this.size;
-
-        if (this.leafType === 0) {
-          // Oval leaf
-          ctx.beginPath();
-          ctx.moveTo(0, -s * 0.5);
-          ctx.bezierCurveTo(s * 0.5, -s * 0.4, s * 0.5, s * 0.4, 0, s * 0.5);
-          ctx.bezierCurveTo(-s * 0.5, s * 0.4, -s * 0.5, -s * 0.4, 0, -s * 0.5);
-          ctx.fillStyle = this.colorSet.fill;
-          ctx.fill();
-          // Vein
-          ctx.beginPath();
-          ctx.moveTo(0, -s * 0.45);
-          ctx.lineTo(0, s * 0.45);
-          ctx.strokeStyle = this.colorSet.stroke;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-        } else if (this.leafType === 1) {
-          // Pointed leaf
-          ctx.beginPath();
-          ctx.moveTo(0, -s * 0.6);
-          ctx.bezierCurveTo(s * 0.4, -s * 0.2, s * 0.35, s * 0.3, 0, s * 0.6);
-          ctx.bezierCurveTo(-s * 0.35, s * 0.3, -s * 0.4, -s * 0.2, 0, -s * 0.6);
-          ctx.fillStyle = this.colorSet.fill;
-          ctx.fill();
-          // Vein
-          ctx.beginPath();
-          ctx.moveTo(0, -s * 0.5);
-          ctx.lineTo(0, s * 0.5);
-          ctx.strokeStyle = this.colorSet.stroke;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-        } else {
-          // Round leaf
-          ctx.beginPath();
-          ctx.ellipse(0, 0, s * 0.35, s * 0.45, 0, 0, Math.PI * 2);
-          ctx.fillStyle = this.colorSet.fill;
-          ctx.fill();
-          // Vein
-          ctx.beginPath();
-          ctx.moveTo(0, -s * 0.4);
-          ctx.lineTo(0, s * 0.4);
-          ctx.moveTo(0, -s * 0.1);
-          ctx.lineTo(s * 0.2, -s * 0.25);
-          ctx.moveTo(0, 0.1);
-          ctx.lineTo(-s * 0.2, -s * 0.05);
-          ctx.strokeStyle = this.colorSet.stroke;
-          ctx.lineWidth = 0.4;
-          ctx.stroke();
-        }
+        ctx.beginPath();
+        ctx.moveTo(0, s * 0.3);
+        ctx.bezierCurveTo(-s * 0.5, -s * 0.3, -s, s * 0.1, 0, s);
+        ctx.bezierCurveTo(s, s * 0.1, s * 0.5, -s * 0.3, 0, s * 0.3);
+        ctx.fill();
 
         ctx.restore();
       }
     }
 
-    for (let i = 0; i < LEAF_COUNT; i++) {
-      leaves.push(new Leaf());
+    for (let i = 0; i < HEART_COUNT; i++) {
+      hearts.push(new Heart());
     }
 
     function animate() {
       ctx.clearRect(0, 0, width, height);
-      leaves.forEach(l => {
-        l.update();
-        l.draw();
+      hearts.forEach(h => {
+        h.update();
+        h.draw();
       });
       requestAnimationFrame(animate);
     }
@@ -325,18 +274,18 @@
   }
 
   /* ═══════════════════════════════════════════
-     Hero Section
+     히어로 섹션
      ═══════════════════════════════════════════ */
 
   function initHero() {
     $('#heroPhoto').src = 'images/hero/1.jpg';
-    $('#heroNames').textContent = `${CONFIG.groom.name}  ·  ${CONFIG.bride.name}`;
+    $('#heroNames').textContent = `${CONFIG.groom.name}  &  ${CONFIG.bride.name}`;
     $('#heroDate').textContent = formatDate(CONFIG.wedding.date, CONFIG.wedding.time);
     $('#heroVenue').textContent = CONFIG.wedding.venue;
   }
 
   /* ═══════════════════════════════════════════
-     Countdown
+     D-day 카운트다운
      ═══════════════════════════════════════════ */
 
   function initCountdown() {
@@ -350,9 +299,9 @@
 
       if (diff <= 0) {
         $('#countDays').textContent = '0';
-        $('#countHours').textContent = '0';
-        $('#countMinutes').textContent = '0';
-        $('#countSeconds').textContent = '0';
+        $('#countHours').textContent = '00';
+        $('#countMinutes').textContent = '00';
+        $('#countSeconds').textContent = '00';
         labelEl.textContent = '결혼식이 시작되었습니다';
         return;
       }
@@ -376,7 +325,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     Greeting Section
+     인사말 섹션
      ═══════════════════════════════════════════ */
 
   function initGreeting() {
@@ -409,7 +358,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     Calendar Section
+     달력 섹션
      ═══════════════════════════════════════════ */
 
   function initCalendar() {
@@ -420,12 +369,12 @@
 
     const grid = $('#calendarGrid');
 
-    // Header
+    // 헤더
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'];
     grid.innerHTML = `<div class="calendar__header">${monthNames[month]} ${year}</div>`;
 
-    // Weekdays
+    // 요일
     const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
     const wdRow = document.createElement('div');
     wdRow.className = 'calendar__weekdays';
@@ -437,7 +386,7 @@
     });
     grid.appendChild(wdRow);
 
-    // Days
+    // 날짜
     const daysContainer = document.createElement('div');
     daysContainer.className = 'calendar__days';
 
@@ -460,19 +409,19 @@
 
     grid.appendChild(daysContainer);
 
-    // Google Calendar link
+    // Google 캘린더 링크
     const startDate = dt.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const endDt = new Date(dt.getTime() + 2 * 60 * 60 * 1000);
     const endDate = endDt.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(CONFIG.groom.name + ' ♥ ' + CONFIG.bride.name + ' 결혼식')}&dates=${startDate}/${endDate}&location=${encodeURIComponent(CONFIG.wedding.venue + ' ' + CONFIG.wedding.address)}&details=${encodeURIComponent('결혼식에 초대합니다.')}`;
     $('#googleCalBtn').href = gcalUrl;
 
-    // ICS download (Apple Calendar)
+    // ICS 다운로드 (Apple 캘린더)
     $('#icsDownloadBtn').addEventListener('click', () => {
       const icsContent = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Wedding//Invitation//KO',
+        'PRODID:-//Wedding//PastelDream//KO',
         'BEGIN:VEVENT',
         `DTSTART:${startDate}`,
         `DTEND:${endDate}`,
@@ -495,7 +444,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     Story Section
+     우리의 이야기 섹션
      ═══════════════════════════════════════════ */
 
   function initStory(storyImages) {
@@ -503,6 +452,7 @@
     $('#storyContent').textContent = CONFIG.story.content;
 
     const container = $('#storyPhotos');
+    // 로딩 플레이스홀더 제거
     const placeholder = container.querySelector('.loading-placeholder');
     if (placeholder) placeholder.remove();
 
@@ -519,36 +469,12 @@
   }
 
   /* ═══════════════════════════════════════════
-     Gallery Section
-     ═══════════════════════════════════════════ */
-
-  function initGallery(galleryImages) {
-    const grid = $('#galleryGrid');
-    const placeholder = grid.querySelector('.loading-placeholder');
-    if (placeholder) placeholder.remove();
-
-    if (galleryImages.length === 0) {
-      const gallerySection = $('#gallery');
-      if (gallerySection) gallerySection.style.display = 'none';
-      return;
-    }
-
-    galleryImages.forEach((src, i) => {
-      const div = document.createElement('div');
-      div.className = 'gallery__item animate-item';
-      div.setAttribute('data-animate', 'scale-in');
-      div.innerHTML = `<img src="${src}" alt="갤러리 사진 ${i + 1}" loading="lazy">`;
-      div.addEventListener('click', () => openPhotoModal(galleryImages, i));
-      grid.appendChild(div);
-    });
-  }
-
-  /* ═══════════════════════════════════════════
-     Photo Modal (with swipe)
+     사진 모달 (스와이프 지원)
      ═══════════════════════════════════════════ */
 
   let modalImages = [];
   let modalIndex = 0;
+  let modalScrollY = 0;
   let touchStartX = 0;
   let touchEndX = 0;
   let touchStartY = 0;
@@ -557,6 +483,7 @@
   function initVideoSection(videoSrc) {
     const section = $('#videoSection');
     const video = $('#weddingVideo');
+    const frame = video ? video.closest('.video__frame') : null;
     if (!section || !video || !videoSrc) return;
 
     video.src = videoSrc;
@@ -569,6 +496,11 @@
     video.setAttribute('autoplay', '');
     video.setAttribute('playsinline', '');
     section.hidden = false;
+    video.addEventListener('loadedmetadata', () => {
+      if (frame && video.videoWidth && video.videoHeight) {
+        frame.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
+      }
+    }, { once: true });
     video.play().catch(() => {});
   }
 
@@ -576,13 +508,23 @@
     modalImages = images;
     modalIndex = index;
     showModalImage();
+    modalScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${modalScrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
     $('#photoModal').classList.add('is-open');
-    document.body.classList.add('no-scroll');
   }
 
   function closePhotoModal() {
     $('#photoModal').classList.remove('is-open');
-    document.body.classList.remove('no-scroll');
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    window.scrollTo(0, modalScrollY);
   }
 
   function showModalImage() {
@@ -614,7 +556,7 @@
       }
     });
 
-    // Keyboard navigation
+    // 키보드 내비게이션
     document.addEventListener('keydown', (e) => {
       if (!modal.classList.contains('is-open')) return;
       if (e.key === 'Escape') closePhotoModal();
@@ -622,7 +564,7 @@
       if (e.key === 'ArrowRight') modalNavigate(1);
     });
 
-    // Swipe support
+    // 스와이프 지원
     const container = $('#modalContainer');
 
     container.addEventListener('touchstart', (e) => {
@@ -645,18 +587,43 @@
     if (Math.abs(diffX) < minSwipe || Math.abs(diffX) < Math.abs(diffY)) return;
 
     if (diffX > 0) {
-      modalNavigate(1);  // swipe left -> next
+      modalNavigate(1);  // 왼쪽 스와이프 -> 다음
     } else {
-      modalNavigate(-1); // swipe right -> prev
+      modalNavigate(-1); // 오른쪽 스와이프 -> 이전
     }
   }
 
   /* ═══════════════════════════════════════════
-     Location Section
+     갤러리 섹션
+     ═══════════════════════════════════════════ */
+
+  function initGallery(galleryImages) {
+    const container = $('#galleryGrid');
+    const section = $('#gallery');
+    if (!container || !galleryImages.length) {
+      if (section) section.style.display = 'none';
+      return;
+    }
+
+    container.innerHTML = '';
+    galleryImages.forEach((src, i) => {
+      const div = document.createElement('div');
+      div.className = 'gallery__item animate-item';
+      div.setAttribute('data-animate', 'scale-in');
+      div.style.setProperty('--delay', i);
+      div.innerHTML = `<img src="${src}" alt="갤러리 사진 ${i + 1}" loading="lazy">`;
+      div.addEventListener('click', () => openPhotoModal(galleryImages, i));
+      container.appendChild(div);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     오시는 길 섹션
      ═══════════════════════════════════════════ */
 
   function initLocation() {
     const w = CONFIG.wedding;
+    const ml = CONFIG.mapLinks;
     const mapImg = $('#locationMapImg');
     $('#locationVenue').textContent = w.venue;
     $('#locationHall').textContent = w.hall;
@@ -664,8 +631,8 @@
     $('#locationTel').textContent = w.tel ? `Tel. ${w.tel}` : '';
     mapImg.src = 'images/location/1.jpg';
     mapImg.addEventListener('click', () => openPhotoModal(['images/location/1.jpg'], 0));
-    $('#kakaoMapBtn').href = w.mapLinks.kakao || '#';
-    $('#naverMapBtn').href = w.mapLinks.naver || '#';
+    $('#kakaoMapBtn').href = ml.kakao || '#';
+    $('#naverMapBtn').href = ml.naver || '#';
 
     $('#copyAddressBtn').addEventListener('click', () => {
       copyToClipboard(w.address, '주소가 복사되었습니다');
@@ -673,7 +640,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     Account Section (축의금)
+     마음 전하실 곳 (축의금) 섹션
      ═══════════════════════════════════════════ */
 
   function renderAccounts(accounts, containerId) {
@@ -720,7 +687,7 @@
     initAccordion('groomAccordion', 'groomAccordionPanel');
     initAccordion('brideAccordion', 'brideAccordionPanel');
 
-    // Copy account delegates
+    // 계좌 복사 이벤트 위임
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('.account-item__copy');
       if (!btn) return;
@@ -730,7 +697,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     Footer
+     푸터
      ═══════════════════════════════════════════ */
 
   function initFooter() {
@@ -742,21 +709,17 @@
   }
 
   /* ═══════════════════════════════════════════
-     Loading Placeholders
+     로딩 플레이스홀더
      ═══════════════════════════════════════════ */
 
   function showLoadingPlaceholders() {
     const storyPhotos = $('#storyPhotos');
-    const galleryGrid = $('#galleryGrid');
-
     const placeholderHTML = '<div class="loading-placeholder"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
-
     if (storyPhotos) storyPhotos.innerHTML = placeholderHTML;
-    if (galleryGrid) galleryGrid.innerHTML = placeholderHTML;
   }
 
   /* ═══════════════════════════════════════════
-     Scroll Animations (IntersectionObserver)
+     스크롤 애니메이션 (IntersectionObserver)
      ═══════════════════════════════════════════ */
 
   function initScrollAnimations() {
@@ -775,10 +738,10 @@
       }
     );
 
-    // Observe initial static items
+    // 초기 정적 항목 관찰
     $$('.animate-item').forEach((el) => observer.observe(el));
 
-    // Re-observe after dynamic content is added (MutationObserver)
+    // 동적 콘텐츠 추가 후 다시 관찰 (MutationObserver)
     const mutObs = new MutationObserver((mutations) => {
       mutations.forEach((m) => {
         m.addedNodes.forEach((node) => {
@@ -797,7 +760,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     Init
+     초기화
      ═══════════════════════════════════════════ */
 
   async function init() {
@@ -808,31 +771,36 @@
     initGreeting();
     initCalendar();
 
-    // Show loading placeholders while detecting images
+    // 이미지 감지 중 로딩 플레이스홀더 표시
     showLoadingPlaceholders();
 
-    // Init sections that don't depend on image detection
+    // 이미지 감지에 의존하지 않는 섹션 초기화
     initPhotoModal();
     initLocation();
     initAccounts();
     initFooter();
     initScrollAnimations();
 
-    // Set story text immediately (photos load async)
+    // 스토리 텍스트 즉시 설정 (사진은 비동기 로드)
     $('#storyTitle').textContent = CONFIG.story.title;
     $('#storyContent').textContent = CONFIG.story.content;
 
-    // Auto-detect story and gallery images in parallel
+    // 스토리/갤러리 이미지 자동 감지
     const [storyImages, galleryImages, videoSrc] = await Promise.all([
       loadImagesFromFolder('story'),
       loadImagesFromFolder('gallery'),
       loadVideoAsset()
     ]);
 
-    // Render sections with discovered images
+    // 감지된 이미지로 섹션 렌더링
     initStory(storyImages);
     initGallery(galleryImages);
     initVideoSection(videoSrc);
+
+    // 동적으로 추가된 요소에 스크롤 애니메이션 재등록
+    document.querySelectorAll('[data-animate]:not(.is-visible)').forEach(el => {
+      if (window._scrollObserver) window._scrollObserver.observe(el);
+    });
   }
 
   if (document.readyState === 'loading') {
