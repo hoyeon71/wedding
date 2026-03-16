@@ -1,5 +1,5 @@
 /**
- * Pastel Dream Wedding Invitation
+ * Watercolor Soft Wedding Invitation
  * Korean Mobile 청첩장 - Script
  */
 
@@ -7,7 +7,7 @@
   'use strict';
 
   /* ═══════════════════════════════════════════
-     유틸리티 헬퍼
+     Utility Helpers
      ═══════════════════════════════════════════ */
 
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
@@ -33,7 +33,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     이미지 자동 감지
+     Image Auto-Detection
      ═══════════════════════════════════════════ */
 
   function loadImagesFromFolder(folder, maxAttempts = 50) {
@@ -105,7 +105,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     토스트
+     Toast
      ═══════════════════════════════════════════ */
 
   let toastTimer = null;
@@ -118,7 +118,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     클립보드 복사
+     Clipboard
      ═══════════════════════════════════════════ */
 
   async function copyToClipboard(text, successMsg) {
@@ -142,7 +142,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     OG 메타 태그
+     OG Meta Tags
      ═══════════════════════════════════════════ */
 
   function setMetaTags() {
@@ -159,7 +159,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     커튼 (초대장 열기)
+     Curtain (Watercolor Wash)
      ═══════════════════════════════════════════ */
 
   function initCurtain() {
@@ -167,10 +167,9 @@
     const btn = $('#curtainBtn');
     const namesEl = $('#curtainNames');
 
-    // useCurtain이 false면 커튼 건너뛰기
     if (CONFIG.useCurtain === false) {
       curtain.style.display = 'none';
-      initFallingHearts();
+      initSparkles();
       return;
     }
 
@@ -181,25 +180,33 @@
       document.body.classList.remove('no-scroll');
       setTimeout(() => {
         curtain.classList.add('is-hidden');
-        initFallingHearts();
-      }, 1200);
+        initSparkles();
+      }, 1400);
     });
 
     document.body.classList.add('no-scroll');
   }
 
   /* ═══════════════════════════════════════════
-     떨어지는 하트 컨페티
+     Falling Pastel Confetti / Sparkles
      ═══════════════════════════════════════════ */
 
-  function initFallingHearts() {
-    const canvas = $('#heartCanvas');
+  function initSparkles() {
+    const canvas = $('#sparkleCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let width, height;
-    const hearts = [];
-    const HEART_COUNT = 20;
-    const COLORS = ['#FFB5C2', '#B5D8FF', '#FFF5BA', '#B5F0D6', '#D5B5FF', '#FFD6DF'];
+    const particles = [];
+    const PARTICLE_COUNT = 30;
+
+    const colors = [
+      'rgba(232, 223, 240, 0.6)',  // lavender
+      'rgba(245, 224, 224, 0.6)',  // blush
+      'rgba(220, 232, 240, 0.55)', // sky
+      'rgba(224, 240, 232, 0.55)', // mint
+      'rgba(196, 168, 212, 0.4)',  // accent
+      'rgba(255, 255, 255, 0.7)'   // white sparkle
+    ];
 
     function resize() {
       width = canvas.width = window.innerWidth;
@@ -209,25 +216,27 @@
     resize();
     window.addEventListener('resize', resize);
 
-    class Heart {
+    class Particle {
       constructor() {
         this.reset(true);
       }
 
       reset(initial = false) {
         this.x = Math.random() * width;
-        this.y = initial ? Math.random() * height * -1 : -30;
-        this.size = 6 + Math.random() * 10;
-        this.speedY = 0.4 + Math.random() * 0.8;
+        this.y = initial ? Math.random() * height * -1 : -20;
+        this.size = 3 + Math.random() * 6;
+        this.speedY = 0.3 + Math.random() * 0.8;
         this.speedX = -0.2 + Math.random() * 0.4;
         this.rotation = Math.random() * Math.PI * 2;
         this.rotSpeed = (Math.random() - 0.5) * 0.03;
         this.oscillateAmp = 15 + Math.random() * 25;
         this.oscillateSpeed = 0.008 + Math.random() * 0.015;
         this.oscillateOffset = Math.random() * Math.PI * 2;
-        this.opacity = 0.15 + Math.random() * 0.35;
-        this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+        this.opacity = 0.3 + Math.random() * 0.5;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
         this.t = 0;
+        // 0 = circle confetti, 1 = sparkle star, 2 = soft blob
+        this.type = Math.floor(Math.random() * 3);
       }
 
       update() {
@@ -235,7 +244,7 @@
         this.y += this.speedY;
         this.x += this.speedX + Math.sin(this.t * this.oscillateSpeed + this.oscillateOffset) * 0.4;
         this.rotation += this.rotSpeed;
-        if (this.y > height + 30) this.reset();
+        if (this.y > height + 20) this.reset();
       }
 
       draw() {
@@ -243,29 +252,47 @@
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
         ctx.globalAlpha = this.opacity;
-        ctx.fillStyle = this.color;
 
-        // 하트 모양
-        const s = this.size;
-        ctx.beginPath();
-        ctx.moveTo(0, s * 0.3);
-        ctx.bezierCurveTo(-s * 0.5, -s * 0.3, -s, s * 0.1, 0, s);
-        ctx.bezierCurveTo(s, s * 0.1, s * 0.5, -s * 0.3, 0, s * 0.3);
-        ctx.fill();
+        if (this.type === 0) {
+          // Circle confetti
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, this.size, this.size * 0.6, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (this.type === 1) {
+          // Sparkle star (4-point)
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          const s = this.size * 0.8;
+          for (let i = 0; i < 4; i++) {
+            const angle = (i * Math.PI) / 2;
+            ctx.lineTo(Math.cos(angle) * s, Math.sin(angle) * s);
+            const midAngle = angle + Math.PI / 4;
+            ctx.lineTo(Math.cos(midAngle) * s * 0.3, Math.sin(midAngle) * s * 0.3);
+          }
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          // Soft blob
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size * 0.7, 0, Math.PI * 2);
+          ctx.fill();
+        }
 
         ctx.restore();
       }
     }
 
-    for (let i = 0; i < HEART_COUNT; i++) {
-      hearts.push(new Heart());
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push(new Particle());
     }
 
     function animate() {
       ctx.clearRect(0, 0, width, height);
-      hearts.forEach(h => {
-        h.update();
-        h.draw();
+      particles.forEach(p => {
+        p.update();
+        p.draw();
       });
       requestAnimationFrame(animate);
     }
@@ -274,18 +301,18 @@
   }
 
   /* ═══════════════════════════════════════════
-     히어로 섹션
+     Hero Section
      ═══════════════════════════════════════════ */
 
   function initHero() {
     $('#heroPhoto').src = 'images/hero/1.jpg';
-    $('#heroNames').textContent = `${CONFIG.groom.name}  &  ${CONFIG.bride.name}`;
+    $('#heroNames').textContent = `${CONFIG.groom.name}  ·  ${CONFIG.bride.name}`;
     $('#heroDate').textContent = formatDate(CONFIG.wedding.date, CONFIG.wedding.time);
     $('#heroVenue').textContent = CONFIG.wedding.venue;
   }
 
   /* ═══════════════════════════════════════════
-     D-day 카운트다운
+     Countdown
      ═══════════════════════════════════════════ */
 
   function initCountdown() {
@@ -299,9 +326,9 @@
 
       if (diff <= 0) {
         $('#countDays').textContent = '0';
-        $('#countHours').textContent = '00';
-        $('#countMinutes').textContent = '00';
-        $('#countSeconds').textContent = '00';
+        $('#countHours').textContent = '0';
+        $('#countMinutes').textContent = '0';
+        $('#countSeconds').textContent = '0';
         labelEl.textContent = '결혼식이 시작되었습니다';
         return;
       }
@@ -325,7 +352,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     인사말 섹션
+     Greeting Section
      ═══════════════════════════════════════════ */
 
   function initGreeting() {
@@ -358,7 +385,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     달력 섹션
+     Calendar Section
      ═══════════════════════════════════════════ */
 
   function initCalendar() {
@@ -369,12 +396,10 @@
 
     const grid = $('#calendarGrid');
 
-    // 헤더
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'];
     grid.innerHTML = `<div class="calendar__header">${monthNames[month]} ${year}</div>`;
 
-    // 요일
     const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
     const wdRow = document.createElement('div');
     wdRow.className = 'calendar__weekdays';
@@ -386,7 +411,6 @@
     });
     grid.appendChild(wdRow);
 
-    // 날짜
     const daysContainer = document.createElement('div');
     daysContainer.className = 'calendar__days';
 
@@ -409,19 +433,19 @@
 
     grid.appendChild(daysContainer);
 
-    // Google 캘린더 링크
+    // Google Calendar link
     const startDate = dt.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const endDt = new Date(dt.getTime() + 2 * 60 * 60 * 1000);
     const endDate = endDt.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(CONFIG.groom.name + ' ♥ ' + CONFIG.bride.name + ' 결혼식')}&dates=${startDate}/${endDate}&location=${encodeURIComponent(CONFIG.wedding.venue + ' ' + CONFIG.wedding.address)}&details=${encodeURIComponent('결혼식에 초대합니다.')}`;
     $('#googleCalBtn').href = gcalUrl;
 
-    // ICS 다운로드 (Apple 캘린더)
+    // ICS download (Apple Calendar)
     $('#icsDownloadBtn').addEventListener('click', () => {
       const icsContent = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Wedding//PastelDream//KO',
+        'PRODID:-//Wedding//Invitation//KO',
         'BEGIN:VEVENT',
         `DTSTART:${startDate}`,
         `DTEND:${endDate}`,
@@ -444,7 +468,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     우리의 이야기 섹션
+     Story Section
      ═══════════════════════════════════════════ */
 
   function initStory(storyImages) {
@@ -452,7 +476,6 @@
     $('#storyContent').textContent = CONFIG.story.content;
 
     const container = $('#storyPhotos');
-    // 로딩 플레이스홀더 제거
     const placeholder = container.querySelector('.loading-placeholder');
     if (placeholder) placeholder.remove();
 
@@ -469,7 +492,32 @@
   }
 
   /* ═══════════════════════════════════════════
-     사진 모달 (스와이프 지원)
+     Gallery Section
+     ═══════════════════════════════════════════ */
+
+  function initGallery(galleryImages) {
+    const grid = $('#galleryGrid');
+    const placeholder = grid.querySelector('.loading-placeholder');
+    if (placeholder) placeholder.remove();
+
+    if (galleryImages.length === 0) {
+      const gallerySection = $('#gallery');
+      if (gallerySection) gallerySection.style.display = 'none';
+      return;
+    }
+
+    galleryImages.forEach((src, i) => {
+      const div = document.createElement('div');
+      div.className = 'gallery__item animate-item';
+      div.setAttribute('data-animate', 'scale-in');
+      div.innerHTML = `<img src="${src}" alt="갤러리 사진 ${i + 1}" loading="lazy">`;
+      div.addEventListener('click', () => openPhotoModal(galleryImages, i));
+      grid.appendChild(div);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     Photo Modal (with swipe)
      ═══════════════════════════════════════════ */
 
   let modalImages = [];
@@ -556,7 +604,7 @@
       }
     });
 
-    // 키보드 내비게이션
+    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
       if (!modal.classList.contains('is-open')) return;
       if (e.key === 'Escape') closePhotoModal();
@@ -564,7 +612,7 @@
       if (e.key === 'ArrowRight') modalNavigate(1);
     });
 
-    // 스와이프 지원
+    // Swipe support
     const container = $('#modalContainer');
 
     container.addEventListener('touchstart', (e) => {
@@ -587,38 +635,14 @@
     if (Math.abs(diffX) < minSwipe || Math.abs(diffX) < Math.abs(diffY)) return;
 
     if (diffX > 0) {
-      modalNavigate(1);  // 왼쪽 스와이프 -> 다음
+      modalNavigate(1);
     } else {
-      modalNavigate(-1); // 오른쪽 스와이프 -> 이전
+      modalNavigate(-1);
     }
   }
 
   /* ═══════════════════════════════════════════
-     갤러리 섹션
-     ═══════════════════════════════════════════ */
-
-  function initGallery(galleryImages) {
-    const container = $('#galleryGrid');
-    const section = $('#gallery');
-    if (!container || !galleryImages.length) {
-      if (section) section.style.display = 'none';
-      return;
-    }
-
-    container.innerHTML = '';
-    galleryImages.forEach((src, i) => {
-      const div = document.createElement('div');
-      div.className = 'gallery__item animate-item';
-      div.setAttribute('data-animate', 'scale-in');
-      div.style.setProperty('--delay', i);
-      div.innerHTML = `<img src="${src}" alt="갤러리 사진 ${i + 1}" loading="lazy">`;
-      div.addEventListener('click', () => openPhotoModal(galleryImages, i));
-      container.appendChild(div);
-    });
-  }
-
-  /* ═══════════════════════════════════════════
-     오시는 길 섹션
+     Location Section
      ═══════════════════════════════════════════ */
 
   function initLocation() {
@@ -640,7 +664,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     마음 전하실 곳 (축의금) 섹션
+     Account Section (축의금)
      ═══════════════════════════════════════════ */
 
   function renderAccounts(accounts, containerId) {
@@ -687,7 +711,7 @@
     initAccordion('groomAccordion', 'groomAccordionPanel');
     initAccordion('brideAccordion', 'brideAccordionPanel');
 
-    // 계좌 복사 이벤트 위임
+    // Copy account delegates
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('.account-item__copy');
       if (!btn) return;
@@ -697,7 +721,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     푸터
+     Footer
      ═══════════════════════════════════════════ */
 
   function initFooter() {
@@ -709,17 +733,21 @@
   }
 
   /* ═══════════════════════════════════════════
-     로딩 플레이스홀더
+     Loading Placeholders
      ═══════════════════════════════════════════ */
 
   function showLoadingPlaceholders() {
     const storyPhotos = $('#storyPhotos');
+    const galleryGrid = $('#galleryGrid');
+
     const placeholderHTML = '<div class="loading-placeholder"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
+
     if (storyPhotos) storyPhotos.innerHTML = placeholderHTML;
+    if (galleryGrid) galleryGrid.innerHTML = placeholderHTML;
   }
 
   /* ═══════════════════════════════════════════
-     스크롤 애니메이션 (IntersectionObserver)
+     Scroll Animations (IntersectionObserver)
      ═══════════════════════════════════════════ */
 
   function initScrollAnimations() {
@@ -738,10 +766,9 @@
       }
     );
 
-    // 초기 정적 항목 관찰
     $$('.animate-item').forEach((el) => observer.observe(el));
 
-    // 동적 콘텐츠 추가 후 다시 관찰 (MutationObserver)
+    // Re-observe after dynamic content is added
     const mutObs = new MutationObserver((mutations) => {
       mutations.forEach((m) => {
         m.addedNodes.forEach((node) => {
@@ -760,7 +787,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     초기화
+     Init
      ═══════════════════════════════════════════ */
 
   async function init() {
@@ -771,36 +798,26 @@
     initGreeting();
     initCalendar();
 
-    // 이미지 감지 중 로딩 플레이스홀더 표시
     showLoadingPlaceholders();
 
-    // 이미지 감지에 의존하지 않는 섹션 초기화
     initPhotoModal();
     initLocation();
     initAccounts();
     initFooter();
     initScrollAnimations();
 
-    // 스토리 텍스트 즉시 설정 (사진은 비동기 로드)
     $('#storyTitle').textContent = CONFIG.story.title;
     $('#storyContent').textContent = CONFIG.story.content;
 
-    // 스토리/갤러리 이미지 자동 감지
     const [storyImages, galleryImages, videoSrc] = await Promise.all([
       loadImagesFromFolder('story'),
       loadImagesFromFolder('gallery'),
       loadVideoAsset()
     ]);
 
-    // 감지된 이미지로 섹션 렌더링
     initStory(storyImages);
     initGallery(galleryImages);
     initVideoSection(videoSrc);
-
-    // 동적으로 추가된 요소에 스크롤 애니메이션 재등록
-    document.querySelectorAll('[data-animate]:not(.is-visible)').forEach(el => {
-      if (window._scrollObserver) window._scrollObserver.observe(el);
-    });
   }
 
   if (document.readyState === 'loading') {
