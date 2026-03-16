@@ -657,11 +657,13 @@
 
   function initLocation() {
     const w = CONFIG.wedding;
+    const mapImg = $('#locationMapImg');
     $('#locationVenue').textContent = w.venue;
     $('#locationHall').textContent = w.hall;
     $('#locationAddress').textContent = w.address;
     $('#locationTel').textContent = w.tel ? `Tel. ${w.tel}` : '';
-    $('#locationMapImg').src = 'images/location/1.jpg';
+    mapImg.src = 'images/location/1.jpg';
+    mapImg.addEventListener('click', () => openPhotoModal(['images/location/1.jpg'], 0));
     $('#kakaoMapBtn').href = w.mapLinks.kakao || '#';
     $('#naverMapBtn').href = w.mapLinks.naver || '#';
 
