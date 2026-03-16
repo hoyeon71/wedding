@@ -36,7 +36,7 @@ const CONFIG = {
     },
 
     wedding: {
-        date: "2026-05-09",
+        date: "2026-09-19",
         time: "12:00",
         venue: "메리빌리아 더 프레스티지",
         hall: "Convention Hall",
